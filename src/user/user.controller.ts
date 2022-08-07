@@ -15,7 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AbilityFactory, Action } from '../ability/ability.factory';
 import { User } from './entities/user.entity';
 import { ForbiddenError } from '@casl/ability';
-import { CheckAbilities } from '../ability/ability.decorator';
+import { CheckAbilities, ReadUserAbility } from '../ability/ability.decorator';
 import { AbilityGuard } from 'src/ability/ability.guard';
 
 @Controller('users')
@@ -45,12 +45,17 @@ export class UserController {
     }
   }
 
+  // possibility to define guards globally
   @Get()
+  @UseGuards(AbilityGuard)
+  @CheckAbilities(new ReadUserAbility())
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AbilityGuard)
+  @CheckAbilities(new ReadUserAbility())
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }

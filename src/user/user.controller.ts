@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ForbiddenException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,6 +15,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AbilityFactory, Action } from '../ability/ability.factory';
 import { User } from './entities/user.entity';
 import { ForbiddenError } from '@casl/ability';
+import { CheckAbilities } from '../ability/ability.decorator';
+import { AbilityGuard } from 'src/ability/ability.guard';
 
 @Controller('users')
 export class UserController {
@@ -27,7 +30,7 @@ export class UserController {
     // we skip authentication for now
     // assume this user is authenticated
 
-    const user: User = { id: 1, isAdmin: false };
+    const user: User = { id: 1, isAdmin: false, orgId: 25 };
 
     const ability = this.abilityFactory.difineAbility(user);
 
@@ -58,6 +61,8 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(AbilityGuard)
+  @CheckAbilities({ action: Action.Delete, subject: User })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }

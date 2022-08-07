@@ -3,10 +3,9 @@ import {
   Ability,
   AbilityBuilder,
   AbilityClass,
-  ExtractSubjectType,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 export enum Action {
   Manage = 'manage', // wildcard for any action
@@ -34,15 +33,15 @@ export class AbilityFactory {
       Ability as AbilityClass<AppAbility>,
     );
 
-    if (!user.isAdmin) {
-      can(Action.Read, User);
+    if (user.isAdmin) {
+      can(Action.Manage, User);
     }
 
-    can(Action.Manage, User);
+    if (!user.isAdmin) {
+      can(Action.Read, User);
+      cannot(Action.Create, User).because('Permissions');
+    }
 
-    return build({
-      detectSubjectType: (subject) =>
-        subject.constructor as ExtractSubjectType<Subjects>,
-    });
+    return build();
   }
 }

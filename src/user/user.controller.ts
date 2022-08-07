@@ -30,18 +30,16 @@ export class UserController {
     const user: User = { id: 1, isAdmin: false };
 
     const ability = this.abilityFactory.difineAbility(user);
-    const isAllowed = ability.can(Action.Create, User);
 
-    //if (!isAllowed) new ForbiddenException('only admin can create users');
-
+    // can be refactored with exception filter enabled globally
     try {
       ForbiddenError.from(ability).throwUnlessCan(Action.Create, User);
+      return this.userService.create(createUserDto);
     } catch (error) {
-      if (error instanceof ForbiddenException)
+      if (error instanceof ForbiddenError) {
         throw new ForbiddenException(error.message);
+      }
     }
-
-    return this.userService.create(createUserDto);
   }
 
   @Get()

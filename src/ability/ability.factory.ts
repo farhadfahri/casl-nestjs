@@ -1,4 +1,9 @@
-import { InferSubjects, Ability } from '@casl/ability';
+import {
+  InferSubjects,
+  Ability,
+  AbilityBuilder,
+  AbilityClass,
+} from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/user/entities/user.entity';
 
@@ -23,5 +28,17 @@ export type AppAbility = Ability<[Action, Subjects]>;
 export class AbilityFactory {
   difineAbility(user: User) {
     // define rules here
+
+    const { can, cannot, build } = new AbilityBuilder(
+      Ability as AbilityClass<AppAbility>,
+    );
+
+    if (!user.isAdmin) {
+      can(Action.Read, User);
+    }
+
+    can(Action.Manage, User);
+
+    return build();
   }
 }
